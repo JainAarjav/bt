@@ -6,7 +6,7 @@ struct node
     struct node* rchild;
     int data;
     struct node* lchild;
-};
+}*root=NULL;
 
 struct stack
 {
@@ -186,7 +186,7 @@ struct node* BST(struct node *p,int key)
     if(p==NULL)
     {
         temp=malloc(sizeof(struct node));
-        temp->rchild=temp->lchild;
+        temp->rchild=temp->lchild=NULL;
         temp->data=key;
         return temp;
     }
@@ -194,25 +194,91 @@ struct node* BST(struct node *p,int key)
     {
         p->lchild=BST(p->lchild,key);
     }
-    else
+    else if(key>p->data)
     {
         p->rchild=BST(p->rchild,key);
     }
+    return p;
+}
+
+int Height(struct node *p)
+{
+    int x,y;
+    if (p==NULL)
+    return 0;
+    x=Height(p->lchild);
+    y=Height(p->rchild);
+    return x>y?x+1:y+1;
+}
+struct node *InPre(struct node *p)
+{
+    while(p && p->rchild!=NULL)
+    {
+        p=p->rchild;
+    }
+    return p;
+}
+struct node *Insucc(struct node *p)
+{
+    while(p && p->lchild!=NULL)
+    {
+        p=p->lchild;
+    }
+    return p;
+}
+
+struct node* Delete(struct node *p,int key)
+{
+    struct node *q;
+    if(p==NULL)
+    return NULL;
+    if(p->lchild ==NULL && p->rchild == NULL)
+    {
+        if (p==root)
+        root=NULL;
+        free(p);
+        return NULL;
+    }
+    
+    if(key<p->data )
+    {
+        p->lchild=Delete(p->lchild,key);
+    }
+    else if(key>p->data)
+    {
+        p->rchild=Delete(p->rchild,key);
+    }
+    else
+    {
+        if(Height(p->lchild)>Height(p->rchild))
+        {
+            q=InPre(p->lchild);
+            p->data=q->data;
+            p->lchild=Delete(p->lchild,q->data);
+        }
+        else
+        {
+            q=Insucc(p->rchild);
+            p->data=q->data;
+            p->rchild=Delete(p->rchild,q->data);
+        }
+    }
+    return p;
 }
 int main(int argc, char const *argv[])
 {
     // struct node *root=Create();
-    struct node *root=NULL;
-    BST(root,5);
-    BST(root,6);
-    BST(root,4);
+    
+   root=BST(root,30);
+   BST(root,20);
+   BST(root,4);
     BST(root,3);
     BST(root,7);
     BST(root,2);
     BST(root,8);
     BST(root,1);
 
-
+    root=Delete(root,20);
     // IteCreate(&root);
 
     DisInorder(root);
